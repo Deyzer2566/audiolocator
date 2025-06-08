@@ -14,20 +14,18 @@ from numpy import fft
 # freqs = random.randint(100, 300, random.randint(2,10)).reshape(-1,1)
 freqs = np.array([10.])
 T = 2
-P = 600
-phase = np.array([-np.pi/6])
-lag = np.round((phase%(2*np.pi))/(2*np.pi*freqs)*P).astype(np.int32)
-phase = lag.astype(np.float32)*(2*np.pi*freqs)/P
-if phase > np.pi:
-    phase = phase - 2*np.pi
+P = 60
+phase1 = np.array([1])
+phase2 = np.array([-np.pi/6])
+# lag = np.round((phase2%(2*np.pi))/(2*np.pi*freqs)*P).astype(np.int32)
+# phase2 = lag.astype(np.float32)*(2*np.pi*freqs)/P
+# if phase2 > np.pi:
+#     phase2 = phase2 - 2*np.pi
 x = np.linspace(0,T,int(T*P), endpoint=False).reshape(-1,1)
-s = np.cos(2*np.pi*(freqs.reshape(-1,1)@x.T)).sum(axis=0)
-# s1 = np.cos(2*np.pi*(freqs@x.T)).sum(axis=0)
-# s2 = np.cos(2*np.pi*(freqs@x.T)-phase).sum(axis=0)
-s1 = s[:-lag[0]]
-s2 = s[lag[0]:]
-# s1 = s
-# s2 = np.concatenate((np.zeros(lag), s[:-lag[0]]),axis=0)
+s1 = np.cos(2*np.pi*(freqs.reshape(-1,1)@x.T)+phase1.reshape(-1,1)).sum(axis=0)
+s2 = np.cos(2*np.pi*(freqs.reshape(-1,1)@x.T)+phase2.reshape(-1,1)).sum(axis=0)
+# for k,i in enumerate(lag):
+#     s2[k,:i] = 0
 from matplotlib import pyplot as plt
 smesitel = s1*s2
 spec = fft.rfft(smesitel, n=P)
@@ -38,9 +36,8 @@ for k, i in enumerate(graphs):
     ax[k,1].plot(np.abs(fft.rfft(i, n=P))/P*2)
     ax[k,2].plot(np.angle(fft.rfft(i, n=P)))
 
-print('phase 1', np.angle(fft.rfft(s1, n=P))[10])
-print('phase 2', np.angle(fft.rfft(s2, n=P))[10])
-print('cos', min(np.abs(spec[0])/P*2, 1.))
-print('calc phase', np.arccos(min(np.abs(spec[0])/P*2, 1.)))
-print('real phase', phase)
+print('phase1', np.angle(fft.rfft(s1, n=P))[freqs.astype(np.int32)])
+print('phase2', np.angle(fft.rfft(s2, n=P))[freqs.astype(np.int32)])
+print('calc phase', np.angle(spec)[freqs.astype(np.int32)*2])
+print('real phase', phase1+phase2)
 plt.show()
