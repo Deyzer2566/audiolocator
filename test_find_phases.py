@@ -34,11 +34,11 @@ for k, i in enumerate(graphs):
     ax[k,1].plot(np.abs(fft.rfft(i, n=P))/P*2)
     ax[k,2].plot(np.angle(fft.rfft(i, n=P)))
 from bruteforcer import find_phases
-delta_phases = find_phases(s1, s2, P)
+delta_phases = find_phases(s1, s2, P, 1e-3)
 
 print('phase1', np.angle(fft.rfft(s1, n=P))[freqs.astype(np.int32)])
 print('phase2', np.angle(fft.rfft(s2, n=P))[freqs.astype(np.int32)])
-print('calc phase', delta_phases)
+print('calc phase', delta_phases[0])
 print('phases sum', phase2+phase1)
 print('phases sub', phase2-phase1)
 # plt.show()
