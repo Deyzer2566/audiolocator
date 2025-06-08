@@ -24,8 +24,6 @@ phase2 = np.array([-np.pi/6,-np.pi/3])
 x = np.linspace(0,T,int(T*P), endpoint=False).reshape(-1,1)
 s1 = np.cos(2*np.pi*(freqs.reshape(-1,1)@x.T)+phase1.reshape(-1,1)).sum(axis=0)
 s2 = np.cos(2*np.pi*(freqs.reshape(-1,1)@x.T)+phase2.reshape(-1,1)).sum(axis=0)
-spec1 = fft.rfft(s1, n=P)
-spec2 = fft.rfft(s2, n=P)
 # for k,i in enumerate(lag):
 #     s2[k,:i] = 0
 from matplotlib import pyplot as plt
@@ -35,10 +33,8 @@ for k, i in enumerate(graphs):
     ax[k,0].plot(i[:P])
     ax[k,1].plot(np.abs(fft.rfft(i, n=P))/P*2)
     ax[k,2].plot(np.angle(fft.rfft(i, n=P)))
-
-threshold = 1e-3
-catched_freqs = np.where(np.logical_and(np.abs(spec1)/P*2 > threshold, np.abs(spec2)/P*2 > threshold))
-delta_phases = np.angle(spec2)[catched_freqs] - np.angle(spec1)[catched_freqs]
+from bruteforcer import find_phases
+delta_phases = find_phases(s1, s2, P)
 
 print('phase1', np.angle(fft.rfft(s1, n=P))[freqs.astype(np.int32)])
 print('phase2', np.angle(fft.rfft(s2, n=P))[freqs.astype(np.int32)])
