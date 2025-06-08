@@ -20,8 +20,6 @@ s1 = np.sin(2*np.pi*(target_freqs.reshape(-1,1)@x.reshape(1,-1)) + phase1*2*np.p
 t = distance(mic2, target)/speed
 phase2 = t-np.floor(t)
 s2 = np.sin(2*np.pi*(target_freqs.reshape(-1,1)@x.reshape(-1,1).T) + phase2*2*np.pi).sum(axis=0)
-targets = find_phases(s1, s2, Fs, 1e-3)
-targets = targets[0]/np.pi
-targets = targets*speed/distance(mic1,mic2)
-print('calc',np.arccos(targets))
+from detector import detect_targets
+print('calc',np.arccos(detect_targets(s1,s2,Fs,distance(mic1,mic2))))
 print('true',np.arccos(-(distance(mic1, target)**2 - distance(mic1,mic2)**2 - distance(mic2,target)**2)/distance(mic1,mic2)/distance(mic2,target)/2))
