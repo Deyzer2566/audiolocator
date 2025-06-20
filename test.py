@@ -1,36 +1,48 @@
 import serial
 Fs = 8000
-a = serial.Serial('COM5', 200000, timeout=400/Fs)
+a = serial.Serial('COM5', 200000, timeout=1)
 d = []
 import time
 t = time.time()
 p = 0
 import numpy as np
 from numpy.fft import rfft
+from struct import unpack
+adc_values_count_in_packet = 200
+packet_format = "<BB"+"H"*adc_values_count_in_packet*2+"HIB"
+packet_size = packet_format.upper().count('B') + packet_format.upper().count('H')*2 + packet_format.upper().count('I')*4
 while(True):
     try:
-        d += a.read(807)
+        d += a.read(packet_size)
         d = d[d.index(0x69):]
-        if len(d) < 1+1+800+4+1:
+        if len(d) < packet_size:
             print('wow')
             raise ValueError
-        data = d[:1+1+800+4+1]
+        data = d[:packet_size]
         d = d[1:]
         if data[-1] != 0x96:
             raise ValueError
-        s = int.from_bytes(data[1+1+800:1+1+800+4], 'little')
-        if s != sum(data[2:2+800]):
+        packet = unpack(packet_format, bytes(data))
+        if packet[-2] != sum(packet[2:-2]):
+            print('was', data[1], packet[-2], sum(data[2:2+800]))
             raise ValueError
-        d = d[807-1:]
+        d = d[packet_size-1:]
         if((p+1)%256 != data[1]):
             print('lel',p,data[1])
         p = data[1]
-        # data = data[2:800+2]
-        # data = [int.from_bytes(data[i:i+2], byteorder='big') for i in range(0,len(data),2)]
-        # print(np.abs(rfft(data)[int(1000/Fs*400)])/400*2)
+        ch1 = np.array(packet[2:-2:2])
+        ch2 = np.array(packet[2+1:-2:2])
+        print('###')
+        print(ch1[:5], ch2[:5])
+        print(p, np.array(ch1).mean(), np.array(ch2).mean())
+        # print(np.abs(rfft(ch1)[int(1000/Fs*adc_values_count_in_packet)])/adc_values_count_in_packet*2,
+        #     np.abs(rfft(ch2)[int(1000/Fs*adc_values_count_in_packet)])/adc_values_count_in_packet*2)
+        
         c = time.time()
         if c-t > 0:
-            print(400/(c-t), c-t)
+            print('freq', adc_values_count_in_packet/(c-t), c-t)
         t=c
     except ValueError:
         continue
+    except KeyboardInterrupt:
+        break
