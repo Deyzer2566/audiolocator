@@ -7,19 +7,17 @@ def distance(p1, p2):
     return np.sqrt(((p1-p2)**2).sum())
 
 mic1 = np.array([0,0])
-mic2 = np.array([0,1])
-target = np.array([10,-3])
+mic2 = np.array([0,0.015])
+target = np.array([0.20,0])# координаты в сантиметрах
 dist = distance((mic1+mic2)/2, target)
 
 target_freqs = np.array([10, 13])
 Fs = (target_freqs.max()+1)*2
 x = np.linspace(0,2,Fs*2, endpoint=False)
-t = dist/speed
-phase1 = t - np.floor(t)
-s1 = np.sin(2*np.pi*(target_freqs.reshape(-1,1)@x.reshape(1,-1)) + phase1*2*np.pi).sum(axis=0)
-t = distance(mic2, target)/speed
-phase2 = t-np.floor(t)
-s2 = np.sin(2*np.pi*(target_freqs.reshape(-1,1)@x.reshape(-1,1).T) + phase2*2*np.pi).sum(axis=0)
+t1 = distance(mic1, target)/speed
+s1 = np.sin(2*np.pi*(target_freqs.reshape(-1,1)@(x+t1).reshape(1,-1))).sum(axis=0)
+t2 = distance(mic2, target)/speed
+s2 = np.sin(2*np.pi*(target_freqs.reshape(-1,1)@(x+t2).reshape(1,-1))).sum(axis=0)
 from detector import detect_targets
-print('calc',np.arccos(detect_targets(s1,s2,Fs,distance(mic1,mic2))))
-print('true',np.arccos(-(distance(mic1, target)**2 - distance(mic1,mic2)**2 - distance(mic2,target)**2)/distance(mic1,mic2)/distance(mic2,target)/2))
+print('calc',np.arccos(detect_targets(s1,s2,Fs,distance(mic1,mic2),0.1)[0])/np.pi*180)
+print('true',np.arccos(-(distance(mic1, target)**2 - distance(mic1,mic2)**2 - distance(mic2,target)**2)/distance(mic1,mic2)/distance(mic2,target)/2)/np.pi*180)

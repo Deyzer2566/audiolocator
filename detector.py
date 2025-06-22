@@ -1,8 +1,11 @@
 import numpy as np
 from bruteforcer import find_phases
 speed = 330
-def detect_targets(s1, s2, Fs, distance_between_micros):
-    targets = find_phases(s1, s2, Fs, 1e-3)
-    targets = targets[0]/np.pi
+def detect_targets(s1, s2, Fs, distance_between_micros, amplitude_threshold):
+    deltas, freqs = find_phases(s1, s2, Fs, amplitude_threshold)
+    if 0 in freqs:
+        deltas = deltas[1:]
+        freqs = freqs[1:]
+    targets = deltas/(2*np.pi*freqs)
     targets = targets*speed/distance_between_micros
-    return targets
+    return targets, freqs

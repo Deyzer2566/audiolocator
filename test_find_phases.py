@@ -17,15 +17,9 @@ T = 2
 P = int((np.ceil(freqs.max()+1))*2)
 phase1 = np.array([1,1])
 phase2 = np.array([-np.pi/6,-np.pi/3])
-# lag = np.round((phase2%(2*np.pi))/(2*np.pi*freqs)*P).astype(np.int32)
-# phase2 = lag.astype(np.float32)*(2*np.pi*freqs)/P
-# if phase2 > np.pi:
-#     phase2 = phase2 - 2*np.pi
 x = np.linspace(0,T,int(T*P), endpoint=False).reshape(-1,1)
 s1 = np.cos(2*np.pi*(freqs.reshape(-1,1)@x.T)+phase1.reshape(-1,1)).sum(axis=0)
 s2 = np.cos(2*np.pi*(freqs.reshape(-1,1)@x.T)+phase2.reshape(-1,1)).sum(axis=0)
-# for k,i in enumerate(lag):
-#     s2[k,:i] = 0
 from matplotlib import pyplot as plt
 graphs = [s1, s2]
 _, ax = plt.subplots(nrows=len(graphs), ncols=3)
@@ -41,4 +35,3 @@ print('phase2', np.angle(fft.rfft(s2, n=P))[freqs.astype(np.int32)])
 print('calc phase', delta_phases[0])
 print('phases sum', phase2+phase1)
 print('phases sub', phase2-phase1)
-# plt.show()
