@@ -34,11 +34,11 @@ OBJECTS = $(SOURCES:.c=.o)
 OBJECTS := $(OBJECTS:.s=.o)
 OBJECTS := $(addprefix $(OUT)/, $(OBJECTS))
 all: flash
-flash: $(OUT)/echolocator.bin
-	st-flash write $(OUT)/echolocator.bin 0x8000000
-$(OUT)/echolocator.bin: $(OUT)/echolocator.elf
-	@arm-none-eabi-objcopy -O binary $(OUT)/echolocator.elf $(OUT)/echolocator.bin
-$(OUT)/echolocator.elf: $(OBJECTS)
+flash: $(OUT)/audiolocator.bin
+	st-flash write $(OUT)/audiolocator.bin 0x8000000
+$(OUT)/audiolocator.bin: $(OUT)/audiolocator.elf
+	@arm-none-eabi-objcopy -O binary $(OUT)/audiolocator.elf $(OUT)/audiolocator.bin
+$(OUT)/audiolocator.elf: $(OBJECTS)
 	@arm-none-eabi-gcc $^ $(LDFLAGS) -o $@ $(CFLAGS)
 $(OUT)/%.o: %.c
 	@$(shell mkdir --parents "$(dir $@)")
