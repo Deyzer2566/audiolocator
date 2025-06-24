@@ -28,6 +28,7 @@ void DMA1_Channel1_IRQHandler() {
         DMA1_Channel1->CCR &= ~DMA_CCR_EN;
         DMA1_Channel1->CMAR = (uint32_t)(&packet[(adc_buff_num+1)%2].adc_data[0]);
         DMA1_Channel1->CNDTR = BLOCKSIZE;
+        DMA1->IFCR = DMA_IFCR_CTCIF1;
         DMA1_Channel1->CCR |= DMA_CCR_EN;
         packet[adc_buff_num].header = 0x69;
         packet[adc_buff_num].end = 0x96;
@@ -44,17 +45,18 @@ void DMA1_Channel1_IRQHandler() {
         sum = 0;
     } else if (DMA1->ISR & DMA_ISR_TEIF1) {
         GPIOC->ODR |= GPIO_ODR_ODR13;
+        DMA1->IFCR = DMA_IFCR_CTEIF1;
     }
-    DMA1->IFCR = DMA_IFCR_CTCIF1 | DMA_IFCR_CTEIF1;
 }
 
 void DMA1_Channel7_IRQHandler() {
      if(DMA1->ISR & DMA_ISR_TCIF7) {
         DMA1_Channel7->CCR &= ~DMA_CCR_EN;
+        DMA1->IFCR = DMA_IFCR_CTCIF7;
     } else  if (DMA1->ISR & DMA_ISR_TEIF7){
         GPIOC->ODR |= GPIO_ODR_ODR13;
+        DMA1->IFCR = DMA_IFCR_CTEIF7;
     }
-    DMA1->IFCR = DMA_IFCR_CTCIF7 | DMA_IFCR_CTEIF7;
 }
 
 void switch_to_hse() {
